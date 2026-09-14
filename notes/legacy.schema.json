@@ -1,0 +1,32 @@
+{
+  "type": "array",
+  "maxItems": 2000,
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "title",
+      "body",
+      "updated"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]{1,100}$"
+      },
+      "title": {
+        "type": "string",
+        "maxLength": 200
+      },
+      "body": {
+        "type": "string",
+        "maxLength": 100000
+      },
+      "updated": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "repository": "vela-notes",
+  "kind": "app",
+  "app_dir": "notes",
+  "version_file": "notes/app.json"
+}

@@ -1,0 +1,59 @@
+{
+  "id": "notes",
+  "name": "Notes",
+  "version": "1.1.0",
+  "description": "Private notes: create, edit, and keep everything on your own machine.",
+  "icon": "icon.svg",
+  "color": "#7c4dee",
+  "category": "productivity",
+  "author": "Vela",
+  "schemaVersion": 2,
+  "compatibility": {
+    "bridge": 1
+  },
+  "runtime": {
+    "static": {
+      "entry": "index.html"
+    }
+  },
+  "view": {
+    "surface": "embedded",
+    "chrome": "compact"
+  },
+  "capabilities": {
+    "required": [
+      "storage",
+      "actions"
+    ]
+  },
+  "data": {
+    "schemaVersion": 1,
+    "schema": "data.schema.json",
+    "quotaBytes": 1048576,
+    "legacy": {
+      "key": "vela.notes.v1",
+      "field": "notes",
+      "schema": "legacy.schema.json"
+    }
+  },
+  "actions": [
+    {
+      "id": "create-note",
+      "title": "Create note",
+      "effect": "write",
+      "inputSchema": "create-note.input.json",
+      "outputSchema": "create-note.output.json",
+      "handler": {
+        "kind": "storage.append",
+        "field": "notes",
+        "initial": {
+          "notes": []
+        },
+        "fields": [
+          "title",
+          "body"
+        ]
+      }
+    }
+  ]
+}
