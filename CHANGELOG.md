@@ -19,6 +19,11 @@
   light or dark preference. On a phone the list is the first screen and an
   opened note slides over it with a Back control. Saving, unsaved-work
   protection, conflict recovery and the create-note action are unchanged.
+  Notes no longer repeats its own name above the list now that the server shows
+  it, so the space goes to Search and New note. The note you are reading is
+  marked by an edge bar as well as a tint, long text keeps a comfortable line
+  length on a wide window, and on a narrow one the note title takes its own row
+  instead of squeezing Back, Save and Delete out of reach.
 
 ## 1.1.0 - 2026-09-14
 

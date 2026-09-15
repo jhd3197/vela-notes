@@ -22,6 +22,68 @@
     line-height: 1.7; padding: 20px;
   }
   .note-body::placeholder { color: var(--vela-faint); }
+
+  /* ---------- Notes inside Vela's app rail ----------
+
+     The hub draws the rail, names the app and offers App settings, so this
+     frame adds no second title bar. `vela-app.css` is the shared starter
+     stylesheet; everything below is this app's own override of it, scoped to
+     Notes' classes, and it responds to the frame's real width rather than the
+     phone's. */
+
+  .vela-layout { background: var(--vela-workspace); }
+
+  /* The host header already says "Notes". Keep the heading for structure and
+     for a screen reader, and give the space to Search and New note. */
+  .note-list-heading {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0; border: 0;
+    clip-path: inset(50%);
+    overflow: hidden; white-space: nowrap;
+  }
+
+  .vela-panel { background: transparent; }
+  .vela-panel-head { padding: 12px 12px 8px; }
+  .vela-panel-head .vela-btn { flex: 1; justify-content: center; }
+  .vela-panel-search { padding: 0 12px 10px; }
+
+  /* A chosen note is marked by an edge bar as well as a surface, so selection
+     never depends on colour alone. */
+  .vela-item { position: relative; padding: 10px 11px 10px 13px; }
+  .vela-item-active::before {
+    content: ''; position: absolute; left: 3px; top: 10px; bottom: 10px;
+    width: 3px; border-radius: 2px; background: var(--vela-accent);
+  }
+  .vela-item-meta { margin-top: 3px; line-height: 1.5; }
+  .vela-item-meta > .vela-item-preview { color: var(--vela-dim); }
+
+  /* One continuous surface: the editor sits beside the list with a single
+     divider, and its own head stays quiet. */
+  .vela-surface { background: var(--vela-card); }
+  .vela-surface-head {
+    flex-wrap: wrap;
+    row-gap: 6px;
+    padding: 10px 16px;
+    background: transparent;
+  }
+  .vela-surface-foot { padding: 8px 16px; }
+  .note-body { padding: 20px 16px 24px; }
+
+  /* Comfortable measure on a wide frame; the full width on a narrow one. */
+  @media (min-width: 760px) {
+    .note-body { padding-inline: max(16px, calc((100% - 72ch) / 2)); }
+  }
+
+  /* A very narrow frame — a phone beside the rail — gives the title its own
+     row instead of squeezing every control in the editor's head. */
+  @media (max-width: 420px) {
+    .vela-surface-head { padding: 8px 12px; }
+    .note-title { order: 3; flex-basis: 100%; font-size: 16px; }
+    .note-status { margin-left: auto; }
+    .note-body { padding: 14px 12px 20px; }
+    .vela-panel-head, .vela-panel-search { padding-inline: 10px; }
+  }
   .note-recovery {
     position: fixed; inset: 12px 12px auto; z-index: 30; max-height: 85vh; overflow: auto;
     padding: 16px; border: 1px solid var(--vela-danger); border-radius: var(--vela-radius);
@@ -53,13 +115,13 @@
 <div class="vela-layout">
   <aside class="vela-panel">
     <div class="vela-panel-head">
-      <h1 class="vela-panel-title">Notes</h1>
-      <button class="vela-btn vela-btn-small vela-btn-primary" id="newBtn">+ New</button>
+      <h1 class="vela-panel-title note-list-heading">Notes</h1>
+      <button class="vela-btn vela-btn-small vela-btn-primary" id="newBtn">+ New note</button>
     </div>
     <div class="vela-panel-search">
       <input class="vela-field" type="search" id="searchInput" placeholder="Search notes…" aria-label="Search notes">
     </div>
-    <div class="vela-panel-list" id="noteList"></div>
+    <div class="vela-panel-list" id="noteList" role="group" aria-label="Your notes"></div>
   </aside>
 
   <main class="vela-surface" id="editorPane">
