@@ -18,7 +18,7 @@
   },
   "view": {
     "surface": "embedded",
-    "chrome": "compact"
+    "chrome": "hub"
   },
   "capabilities": {
     "required": [

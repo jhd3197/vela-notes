@@ -4,126 +4,153 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Notes</title>
+<link rel="stylesheet" href="vela-app.css">
 <style>
-  :root {
-    --bg: #0e0d0a;
-    --surface: #171510;
-    --surface-2: #201d15;
-    --border: #2c2820;
-    --text: #f4f1e8;
-    --muted: #a39a86;
-    --accent: #eab308;
-    --accent-soft: rgba(234, 179, 8, 0.14);
-    --danger: #f87171;
-    --radius: 14px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
-  body {
-    background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
-  }
-  .layout { display: grid; grid-template-columns: 280px 1fr; height: 100vh; height: 100dvh; }
-
-  /* Sidebar */
-  .sidebar {
-    border-right: 1px solid var(--border); background: var(--surface);
-    display: flex; flex-direction: column; min-height: 0;
-  }
-  .side-head { padding: 16px 16px 12px; display: flex; align-items: center; justify-content: space-between; }
-  .side-head h1 { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }
-  .btn {
-    border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
-    font: inherit; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 9px;
-    cursor: pointer; transition: border-color .15s, background .15s;
-  }
-  .btn:hover { border-color: var(--accent); }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: #1a1608; }
-  .btn.primary:hover { filter: brightness(1.08); }
-  .btn.danger:hover { border-color: var(--danger); color: var(--danger); }
-  .search { padding: 0 16px 12px; }
-  .search input {
-    width: 100%; background: var(--surface-2); border: 1px solid var(--border); color: var(--text);
-    font: inherit; font-size: 13.5px; padding: 8px 12px; border-radius: 9px; outline: none;
-  }
-  .search input:focus { border-color: var(--accent); }
-  .note-list { flex: 1; overflow-y: auto; padding: 0 8px 16px; }
-  .note-item {
-    padding: 11px 12px; border-radius: 10px; cursor: pointer; border: 1px solid transparent;
-    margin-bottom: 2px; transition: background .12s;
-  }
-  .note-item:hover { background: var(--surface-2); }
-  .note-item.active { background: var(--accent-soft); border-color: rgba(234,179,8,0.35); }
-  .note-item .t { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .note-item .m { color: var(--muted); font-size: 12px; margin-top: 2px; display: flex; gap: 8px; }
-  .note-item .m .prev { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  /* Editor */
-  .editor { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
-  .editor-head {
-    display: flex; align-items: center; gap: 10px; padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .editor-head input.title {
-    flex: 1; min-width: 0; background: transparent; border: 0; outline: none;
-    color: var(--text); font: inherit; font-size: 17px; font-weight: 700; letter-spacing: -0.01em;
-  }
-  .saved-hint { color: var(--muted); font-size: 12px; white-space: nowrap; transition: opacity .3s; }
-  .editor-body { flex: 1; min-height: 0; }
-  .editor-body textarea {
-    width: 100%; height: 100%; resize: none; border: 0; outline: none; background: transparent;
-    color: var(--text); font: inherit; font-size: 15px; line-height: 1.65; padding: 20px;
-  }
-  .editor-body textarea::placeholder { color: var(--muted); }
-  .editor-foot {
-    display: flex; align-items: center; gap: 16px; padding: 10px 20px;
-    border-top: 1px solid var(--border); color: var(--muted); font-size: 12.5px;
+  /* Notes keeps its own accent inside Vela's shared surfaces. */
+  :root { --vela-accent: #7c4dee; --vela-accent-strong: #5f37c4; --vela-accent-soft: #ebe5ff; }
+  /* The soft tint has to be redefined for dark as well as the strong one:
+     keeping the light value there left the chosen note's title unreadable. */
+  [data-vela-theme='dark'] {
+    --vela-accent-strong: #cdbcff;
+    --vela-accent-soft: color-mix(in srgb, #7c4dee 30%, transparent);
   }
 
-  /* Empty state */
-  .empty { flex: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 32px; text-align: center; }
-  .empty.show { display: flex; }
-  .empty .glyph { width: 56px; height: 56px; border-radius: 16px; background: var(--accent-soft); display: grid; place-items: center; }
-  .empty h2 { font-size: 18px; }
-  .empty p { color: var(--muted); font-size: 13.5px; max-width: 34ch; }
-  .no-results { color: var(--muted); font-size: 13px; text-align: center; padding: 24px 12px; }
+  .note-title {
+    flex: 1; min-width: 0; border: 0; outline: none; background: transparent;
+    color: var(--vela-text); font: inherit; font-size: 17px; font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .note-status { color: var(--vela-faint); font-size: 12px; white-space: nowrap; }
+  .note-body {
+    flex: 1; width: 100%; min-height: 0; resize: none; border: 0; outline: none;
+    background: transparent; color: var(--vela-text); font: inherit; font-size: 15px;
+    line-height: 1.7; padding: 20px;
+  }
+  .note-body::placeholder { color: var(--vela-faint); }
 
-  .back-btn { display: none; }
+  /* ---------- Notes inside Vela's app rail ----------
 
-  @media (max-width: 700px) {
-    .layout { grid-template-columns: 1fr; }
-    .sidebar { border-right: 0; }
-    .editor { position: fixed; inset: 0; background: var(--bg); transform: translateX(100%); transition: transform .22s ease; z-index: 10; }
-    .editor.open { transform: none; }
-    .back-btn { display: inline-flex; }
+     The hub draws the rail, names the app and offers App settings, so this
+     frame adds no second title bar. `vela-app.css` is the shared starter
+     stylesheet; everything below is this app's own override of it, scoped to
+     Notes' classes, and it responds to the frame's real width rather than the
+     phone's. */
+
+  .vela-layout { background: var(--vela-workspace); }
+
+  /* The host header already says "Notes". Keep the heading for structure and
+     for a screen reader, and give the space to Search and New note. */
+  .note-list-heading {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0; border: 0;
+    clip-path: inset(50%);
+    overflow: hidden; white-space: nowrap;
+  }
+
+  /* A grid item keeps `min-width: auto` by default, so the list column was
+     taking its width from the longest note title instead of from the space the
+     server gave the frame, and rows ran off the right edge on a narrow phone.
+     The shared starter stylesheet is left alone; this is Notes' own fix. */
+  .vela-panel, .vela-panel-list, .vela-panel-head, .vela-panel-search { min-width: 0; }
+  .vela-item-title, .vela-item-meta > span { min-width: 0; }
+  .vela-field { min-width: 0; }
+
+  .vela-panel { background: transparent; }
+  .vela-panel-head { padding: 12px 12px 8px; }
+  .vela-panel-head .vela-btn { flex: 1; justify-content: center; }
+  .vela-panel-search { padding: 0 12px 10px; }
+
+  /* A chosen note is marked by an edge bar as well as a surface, so selection
+     never depends on colour alone. */
+  .vela-item { position: relative; padding: 10px 11px 10px 13px; }
+  .vela-item-active::before {
+    content: ''; position: absolute; left: 3px; top: 10px; bottom: 10px;
+    width: 3px; border-radius: 2px; background: var(--vela-accent);
+  }
+  .vela-item-active { color: var(--vela-text); }
+  .vela-item-meta { margin-top: 3px; line-height: 1.5; }
+  .vela-item-meta > .vela-item-preview { color: var(--vela-dim); }
+
+  /* One continuous surface: the editor sits beside the list with a single
+     divider, and its own head stays quiet. */
+  .vela-surface { background: var(--vela-card); }
+  .vela-surface-head {
+    flex-wrap: wrap;
+    row-gap: 6px;
+    padding: 10px 16px;
+    background: transparent;
+  }
+  .vela-surface-foot { padding: 8px 16px; }
+  .note-body { padding: 20px 16px 24px; }
+
+  /* A comfortable line length on a wide frame, starting under the title
+     rather than floating in the middle of the pane. Narrow frames keep the
+     full width. */
+  @media (min-width: 760px) {
+    .note-body { max-width: 78ch; }
+  }
+
+  /* A very narrow frame — a phone beside the rail — gives the title its own
+     row instead of squeezing every control in the editor's head. */
+  @media (max-width: 420px) {
+    .vela-surface-head { padding: 8px 12px; }
+    .note-title { order: 3; flex-basis: 100%; font-size: 16px; }
+    .note-status { margin-left: auto; }
+    .note-body { padding: 14px 12px 20px; }
+    .vela-panel-head, .vela-panel-search { padding-inline: 10px; }
+  }
+  .note-recovery {
+    position: fixed; inset: 12px 12px auto; z-index: 30; max-height: 85vh; overflow: auto;
+    padding: 16px; border: 1px solid var(--vela-danger); border-radius: var(--vela-radius);
+    background: var(--vela-card);
+  }
+  .note-recovery textarea {
+    width: 100%; height: 150px; margin: 12px 0; padding: 10px;
+    border: 1px solid var(--vela-border); border-radius: var(--vela-radius-sm);
+    background: var(--vela-inset); color: var(--vela-text); font: inherit; font-size: 12px;
   }
 </style>
 </head>
 <body>
-<section id="recovery" hidden style="position:fixed;inset:12px 12px auto;z-index:30;padding:16px;background:var(--surface);border:1px solid var(--danger);border-radius:12px;max-height:85vh;overflow:auto"><p id="recoveryMessage"></p><textarea id="draftData" readonly aria-label="Unsaved Notes data" style="width:100%;height:150px;margin:12px 0"></textarea><button class="btn" id="reloadData">Discard edits and reload</button></section>
-<dialog id="deleteDialog" style="margin:auto;padding:24px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:12px"><p>Delete this note?</p><button class="btn danger" id="confirmDelete">Delete note</button> <button class="btn" id="cancelDelete">Cancel</button></dialog>
-<div class="layout">
-  <aside class="sidebar">
-    <div class="side-head">
-      <h1>Notes</h1>
-      <button class="btn primary" id="newBtn">+ New</button>
+<section class="note-recovery" id="recovery" hidden>
+  <p id="recoveryMessage"></p>
+  <textarea id="draftData" readonly aria-label="Unsaved Notes data"></textarea>
+  <button class="vela-btn" id="reloadData">Discard edits and reload</button>
+</section>
+
+<dialog class="vela-dialog" id="deleteDialog" aria-labelledby="deleteTitle">
+  <h2 id="deleteTitle" style="margin:0;font-size:17px;font-weight:500">Delete this note?</h2>
+  <p style="margin:8px 0 0;color:var(--vela-dim);font-size:13.5px">This removes it from your Vela engine. It cannot be undone.</p>
+  <div class="vela-dialog-actions">
+    <button class="vela-btn" id="cancelDelete">Cancel</button>
+    <button class="vela-btn vela-btn-danger" id="confirmDelete">Delete note</button>
+  </div>
+</dialog>
+
+<div class="vela-layout">
+  <aside class="vela-panel">
+    <div class="vela-panel-head">
+      <h1 class="vela-panel-title note-list-heading">Notes</h1>
+      <button class="vela-btn vela-btn-small vela-btn-primary" id="newBtn">+ New note</button>
     </div>
-    <div class="search"><input type="search" id="searchInput" placeholder="Search notes…" aria-label="Search notes"></div>
-    <div class="note-list" id="noteList"></div>
+    <div class="vela-panel-search">
+      <input class="vela-field" type="search" id="searchInput" placeholder="Search notes…" aria-label="Search notes">
+    </div>
+    <div class="vela-panel-list" id="noteList" role="group" aria-label="Your notes"></div>
   </aside>
 
-  <main class="editor" id="editorPane">
-    <div class="editor-head">
-      <button class="btn back-btn" id="backBtn" aria-label="Back to list">‹ Back</button>
-      <input class="title" id="titleInput" placeholder="Note title" maxlength="120" aria-label="Note title">
-      <span class="saved-hint" id="savedHint">Saved</span>
-      <button class="btn danger" id="deleteBtn">Delete</button>
+  <main class="vela-surface" id="editorPane">
+    <div class="vela-surface-head">
+      <button class="vela-btn vela-btn-small vela-back" id="backBtn" aria-label="Back to the note list">‹ Back</button>
+      <input class="note-title" id="titleInput" placeholder="Note title" maxlength="120" aria-label="Note title">
+      <span class="note-status" id="savedHint">Saved</span>
+      <button class="vela-btn vela-btn-small vela-btn-danger" id="deleteBtn">Delete</button>
     </div>
-    <div class="editor-body">
-      <textarea id="bodyInput" placeholder="Start writing… your words never leave this device." aria-label="Note body"></textarea>
+    <div class="vela-surface-body">
+      <textarea class="note-body" id="bodyInput" placeholder="Start writing… your words stay on this machine." aria-label="Note body"></textarea>
     </div>
-    <div class="editor-foot">
+    <div class="vela-surface-foot">
       <span id="wordCount">0 words</span>
       <span id="charCount">0 characters</span>
       <span style="flex:1"></span>
@@ -131,24 +158,25 @@
     </div>
   </main>
 
-  <main class="empty" id="emptyPane">
-    <div class="glyph">
-      <svg width="26" height="26" viewBox="0 0 96 96" fill="none" stroke="#eab308" stroke-width="7" stroke-linecap="round">
+  <main class="vela-surface vela-empty" id="emptyPane" hidden>
+    <span class="vela-empty-glyph" aria-hidden="true">
+      <svg width="26" height="26" viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round">
         <rect x="20" y="14" width="56" height="68" rx="8"/>
         <line x1="32" y1="32" x2="64" y2="32"/><line x1="32" y1="46" x2="64" y2="46"/><line x1="32" y1="60" x2="52" y2="60"/>
       </svg>
-    </div>
+    </span>
     <h2>No note selected</h2>
-    <p>Pick a note from the list, or create a new one. Your notes are stored on your Vela engine.</p>
-    <button class="btn primary" id="emptyNewBtn">Create a note</button>
+    <p>Pick a note from the list, or create a new one. Your notes are stored on your Vela server.</p>
+    <button class="vela-btn vela-btn-primary" id="emptyNewBtn">Create a note</button>
   </main>
 </div>
 
 <script src="_vela/sdk.js"></script>
+<script src="vela-theme.js"></script>
+<script src="vela-viewport.js"></script>
 <script>
 (function () {
   "use strict";
-  var STORE_KEY = "vela.notes.v1";
 
   var listEl = document.getElementById("noteList");
   var searchEl = document.getElementById("searchInput");
@@ -171,11 +199,11 @@
   var revision=0,loaded=false,dirty=false,busy=false,conflict=false,pending=Promise.resolve(),deleteId=null;
   function lock(value){['newBtn','emptyNewBtn','titleInput','bodyInput','deleteBtn'].forEach(function(id){document.getElementById(id).disabled=value;});}
   async function markDirty(value){dirty=value;await Vela.setUnsavedChanges(value);}
-  async function load(){var saved=await Vela.storage.read();notes=saved.value?saved.value.notes:[];revision=saved.revision;loaded=true;conflict=false;lock(false);document.getElementById('recovery').hidden=true;if(notes.length)select(activeId&&notes.some(function(n){return n.id===activeId;})?activeId:notes[0].id);else showEmpty();savedHint.textContent='Saved to engine';}
+  async function load(){var saved=await Vela.storage.read();notes=saved.value?saved.value.notes:[];revision=saved.revision;loaded=true;conflict=false;lock(false);document.getElementById('recovery').hidden=true;if(notes.length)select(activeId&&notes.some(function(n){return n.id===activeId;})?activeId:notes[0].id);else showEmpty();savedHint.textContent='Saved to your server';}
   function persist(){
     clearTimeout(saveTimer);if(busy)return pending;if(conflict||!loaded)return Promise.reject(new Error('Resolve your unsaved edits first'));
-    busy=true;lock(true);savedHint.textContent='Saving�';
-    pending=(async function(){try{await markDirty(true);var saved=await Vela.storage.write({notes:notes},revision);revision=saved.revision;await markDirty(false);savedHint.textContent='Saved to engine';renderList();}
+    busy=true;lock(true);savedHint.textContent='Saving…';
+    pending=(async function(){try{await markDirty(true);var saved=await Vela.storage.write({notes:notes},revision);revision=saved.revision;await markDirty(false);savedHint.textContent='Saved to your server';renderList();}
     catch(error){conflict=true;savedHint.textContent='Not saved';document.getElementById('recovery').hidden=false;document.getElementById('recoveryMessage').textContent=error.status===409?'Another client changed your notes. Your draft is retained here; copy it before reloading.':error.message;document.getElementById('draftData').value=JSON.stringify({notes:notes},null,2);throw error;}
     finally{busy=false;lock(conflict);}})();pending.catch(function(){});return pending;
   }
@@ -190,8 +218,8 @@
     var today = new Date();
     var sameDay = d.toDateString() === today.toDateString();
     return sameDay
-      ? d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
-      : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      ? d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+      : d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
   }
   function esc(s) {
     return s.replace(/[&<>"']/g, function (c) {
@@ -208,18 +236,19 @@
     shown.sort(function (a, b) { return b.updated - a.updated; });
 
     if (!shown.length) {
-      listEl.innerHTML = '<div class="no-results">' + (q ? "No notes match your search." : "No notes yet. Create your first one.") + "</div>";
+      listEl.innerHTML = '<p class="vela-note">' + (q ? "No notes match your search." : "No notes yet. Create your first one.") + "</p>";
       return;
     }
     listEl.innerHTML = shown.map(function (n) {
       var preview = n.body.split("\n").filter(Boolean).join(" ").slice(0, 80) || "No content yet";
-      return '<div class="note-item' + (n.id === activeId ? " active" : "") + '" data-id="' + n.id + '">' +
-        '<div class="t">' + esc(n.title || "Untitled") + "</div>" +
-        '<div class="m"><span>' + fmtTime(n.updated) + '</span><span class="prev">' + esc(preview) + "</span></div></div>";
+      return '<button type="button" class="vela-item' + (n.id === activeId ? " vela-item-active" : "") + '"' +
+        (n.id === activeId ? ' aria-current="true"' : "") + ' data-id="' + n.id + '">' +
+        '<span class="vela-item-title">' + esc(n.title || "Untitled") + "</span>" +
+        '<span class="vela-item-meta"><span>' + fmtTime(n.updated) + '</span><span class="vela-item-preview">' + esc(preview) + "</span></span></button>";
     }).join("");
 
-    listEl.querySelectorAll(".note-item").forEach(function (el) {
-      el.addEventListener("click", function () { select(el.dataset.id); });
+    listEl.querySelectorAll(".vela-item").forEach(function (el) {
+      el.addEventListener("click", function () { select(el.dataset.id, true); });
     });
   }
 
@@ -232,13 +261,15 @@
     editedAtEl.textContent = n ? "Edited " + fmtTime(n.updated) : "";
   }
 
-  function select(id) {
+  // `reveal` is true only when someone chose a note. Restoring a selection on
+  // load must not slide the editor over the list on a phone.
+  function select(id, reveal) {
     activeId = id;
     var n = active();
     if (!n) { showEmpty(); return; }
-    emptyPane.classList.remove("show");
-    editorPane.style.display = "flex";
-    editorPane.classList.add("open");
+    emptyPane.hidden = true;
+    editorPane.hidden = false;
+    if (reveal) editorPane.classList.add("vela-surface-open");
     titleEl.value = n.title;
     bodyEl.value = n.body;
     updateCounts();
@@ -247,9 +278,9 @@
 
   function showEmpty() {
     activeId = null;
-    editorPane.style.display = "none";
-    editorPane.classList.remove("open");
-    emptyPane.classList.add("show");
+    editorPane.hidden = true;
+    editorPane.classList.remove("vela-surface-open");
+    emptyPane.hidden = false;
     renderList();
   }
 
@@ -259,7 +290,7 @@
     var n = { id: uid(), title: "Untitled", body: "", updated: Date.now() };
     notes.unshift(n);
     persist();
-    select(n.id);
+    select(n.id, true);
     titleEl.focus();
     titleEl.select();
   }
@@ -268,7 +299,8 @@
   document.getElementById("newBtn").addEventListener("click", createNote);
   document.getElementById("emptyNewBtn").addEventListener("click", createNote);
   document.getElementById("backBtn").addEventListener("click", function () {
-    editorPane.classList.remove("open");
+    editorPane.classList.remove("vela-surface-open");
+    searchEl.focus();
   });
 
   document.getElementById('deleteBtn').onclick=function(){if(!loaded||busy||conflict||!active())return;deleteId=activeId;document.getElementById('deleteDialog').showModal();};

@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+### Changed
+
+- Notes fits a phone properly. It fills the space the server gives it instead of
+  measuring a viewport unit of its own, so the editor no longer runs under the
+  browser's toolbar or an open keyboard, and the server's safe areas and
+  keyboard are subtracted once rather than twice. Search and the note title
+  render at 16 pixels or more on touch, so tapping them no longer zooms the page
+  and leaves it zoomed, while larger text you have chosen is kept. Reaching the
+  end of the note list no longer starts moving the page behind it, the delete
+  dialog scrolls inside itself on a short screen, and pinch zoom, panning and
+  text selection are untouched.
+- Notes now opens inside the Vela server's own workspace. The server draws the
+  rail and the app's name, and Notes keeps its list, editor and search in the
+  same surfaces, spacing and typography as the rest of Vela, following your
+  light or dark preference. On a phone the list is the first screen and an
+  opened note slides over it with a Back control. Saving, unsaved-work
+  protection, conflict recovery and the create-note action are unchanged.
+  Notes no longer repeats its own name above the list now that the server shows
+  it, so the space goes to Search and New note. The note you are reading is
+  marked by an edge bar as well as a tint, long text keeps a comfortable line
+  length on a wide window, and on a narrow one the note title takes its own row
+  instead of squeezing Back, Save and Delete out of reach.
+
+### Fixed
+
+- The note list no longer runs off the side of a narrow phone. It took its width
+  from the longest note title instead of the space the server gave it, so titles
+  and previews were cut off at the right edge around 320 pixels.
+- The note you are reading is readable again in the dark theme. Its title was
+  drawn in light text on a light tint, because Notes replaced the light
+  selection colour without giving the dark theme one of its own.
+
 ## 1.1.0 - 2026-09-14
 
 ### Added
