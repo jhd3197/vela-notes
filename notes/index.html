@@ -8,7 +8,12 @@
 <style>
   /* Notes keeps its own accent inside Vela's shared surfaces. */
   :root { --vela-accent: #7c4dee; --vela-accent-strong: #5f37c4; --vela-accent-soft: #ebe5ff; }
-  [data-vela-theme='dark'] { --vela-accent-strong: #cdbcff; }
+  /* The soft tint has to be redefined for dark as well as the strong one:
+     keeping the light value there left the chosen note's title unreadable. */
+  [data-vela-theme='dark'] {
+    --vela-accent-strong: #cdbcff;
+    --vela-accent-soft: color-mix(in srgb, #7c4dee 30%, transparent);
+  }
 
   .note-title {
     flex: 1; min-width: 0; border: 0; outline: none; background: transparent;
@@ -43,6 +48,14 @@
     overflow: hidden; white-space: nowrap;
   }
 
+  /* A grid item keeps `min-width: auto` by default, so the list column was
+     taking its width from the longest note title instead of from the space the
+     server gave the frame, and rows ran off the right edge on a narrow phone.
+     The shared starter stylesheet is left alone; this is Notes' own fix. */
+  .vela-panel, .vela-panel-list, .vela-panel-head, .vela-panel-search { min-width: 0; }
+  .vela-item-title, .vela-item-meta > span { min-width: 0; }
+  .vela-field { min-width: 0; }
+
   .vela-panel { background: transparent; }
   .vela-panel-head { padding: 12px 12px 8px; }
   .vela-panel-head .vela-btn { flex: 1; justify-content: center; }
@@ -55,6 +68,7 @@
     content: ''; position: absolute; left: 3px; top: 10px; bottom: 10px;
     width: 3px; border-radius: 2px; background: var(--vela-accent);
   }
+  .vela-item-active { color: var(--vela-text); }
   .vela-item-meta { margin-top: 3px; line-height: 1.5; }
   .vela-item-meta > .vela-item-preview { color: var(--vela-dim); }
 
@@ -70,9 +84,11 @@
   .vela-surface-foot { padding: 8px 16px; }
   .note-body { padding: 20px 16px 24px; }
 
-  /* Comfortable measure on a wide frame; the full width on a narrow one. */
+  /* A comfortable line length on a wide frame, starting under the title
+     rather than floating in the middle of the pane. Narrow frames keep the
+     full width. */
   @media (min-width: 760px) {
-    .note-body { padding-inline: max(16px, calc((100% - 72ch) / 2)); }
+    .note-body { max-width: 78ch; }
   }
 
   /* A very narrow frame — a phone beside the rail — gives the title its own

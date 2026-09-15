@@ -25,6 +25,15 @@
   length on a wide window, and on a narrow one the note title takes its own row
   instead of squeezing Back, Save and Delete out of reach.
 
+### Fixed
+
+- The note list no longer runs off the side of a narrow phone. It took its width
+  from the longest note title instead of the space the server gave it, so titles
+  and previews were cut off at the right edge around 320 pixels.
+- The note you are reading is readable again in the dark theme. Its title was
+  drawn in light text on a light tint, because Notes replaced the light
+  selection colour without giving the dark theme one of its own.
+
 ## 1.1.0 - 2026-09-14
 
 ### Added
