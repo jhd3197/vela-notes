@@ -1,6 +1,7 @@
 # vela-notes
 
-Private notes with persistent storage and reviewed app actions.
+Private notes with persistent storage, reviewed app actions and two summaries
+for the Vela desk.
 
 ## Install
 

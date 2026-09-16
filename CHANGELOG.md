@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Added
+
+- Two widgets for the Vela desk. **Notes** shows how many notes you have and
+  whether the last save reached your server; **Recent notes** lists the five you
+  changed most recently. Both are published by Notes itself and drawn by Vela,
+  and both raise the rail's attention dot when a save has not gone through. The
+  `widgets` permission is optional: refuse it and Notes works exactly as before.
+
 ### Changed
 
 - Notes fits a phone properly. It fills the space the server gives it instead of
