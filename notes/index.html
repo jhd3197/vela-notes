@@ -199,12 +199,26 @@
   var revision=0,loaded=false,dirty=false,busy=false,conflict=false,pending=Promise.resolve(),deleteId=null;
   function lock(value){['newBtn','emptyNewBtn','titleInput','bodyInput','deleteBtn'].forEach(function(id){document.getElementById(id).disabled=value;});}
   async function markDirty(value){dirty=value;await Vela.setUnsavedChanges(value);}
-  async function load(){var saved=await Vela.storage.read();notes=saved.value?saved.value.notes:[];revision=saved.revision;loaded=true;conflict=false;lock(false);document.getElementById('recovery').hidden=true;if(notes.length)select(activeId&&notes.some(function(n){return n.id===activeId;})?activeId:notes[0].id);else showEmpty();savedHint.textContent='Saved to your server';}
+  async function load(){var saved=await Vela.storage.read();notes=saved.value?saved.value.notes:[];revision=saved.revision;loaded=true;conflict=false;lock(false);document.getElementById('recovery').hidden=true;if(notes.length)select(activeId&&notes.some(function(n){return n.id===activeId;})?activeId:notes[0].id);else showEmpty();savedHint.textContent='Saved to your server';publishWidgets();}
+  // What the desk is told about Notes. Both summaries are derived from what is
+  // actually on the server: how many notes there are, when each was last
+  // changed, and whether the last save went through. Nothing is estimated, and
+  // a failure is reported as one so the rail can raise its dot.
+  function publishWidgets(){
+    // An older Vela has no widgets bridge, and the capability is optional, so
+    // both a missing API and a refused publish are simply not the desk today.
+    if(!loaded||!Vela.widgets)return;
+    var latest=notes.slice().sort(function(a,b){return b.updated-a.updated;});
+    var state=conflict?'Last save did not go through':dirty?'Unsaved changes in this window':'Saved to your server';
+    var ignore=function(){/* The desk is not essential to using Notes. */};
+    Vela.widgets.publish('saved',{value:String(notes.length),unit:notes.length===1?'note':'notes',caption:state,attention:conflict}).catch(ignore);
+    Vela.widgets.publish('recent',{caption:notes.length?'':'No notes yet',rows:latest.slice(0,5).map(function(note){return {label:(note.title||'Untitled').slice(0,200),detail:fmtTime(note.updated)};}),attention:conflict}).catch(ignore);
+  }
   function persist(){
     clearTimeout(saveTimer);if(busy)return pending;if(conflict||!loaded)return Promise.reject(new Error('Resolve your unsaved edits first'));
     busy=true;lock(true);savedHint.textContent='Saving…';
-    pending=(async function(){try{await markDirty(true);var saved=await Vela.storage.write({notes:notes},revision);revision=saved.revision;await markDirty(false);savedHint.textContent='Saved to your server';renderList();}
-    catch(error){conflict=true;savedHint.textContent='Not saved';document.getElementById('recovery').hidden=false;document.getElementById('recoveryMessage').textContent=error.status===409?'Another client changed your notes. Your draft is retained here; copy it before reloading.':error.message;document.getElementById('draftData').value=JSON.stringify({notes:notes},null,2);throw error;}
+    pending=(async function(){try{await markDirty(true);var saved=await Vela.storage.write({notes:notes},revision);revision=saved.revision;await markDirty(false);savedHint.textContent='Saved to your server';renderList();publishWidgets();}
+    catch(error){conflict=true;savedHint.textContent='Not saved';document.getElementById('recovery').hidden=false;document.getElementById('recoveryMessage').textContent=error.status===409?'Another client changed your notes. Your draft is retained here; copy it before reloading.':error.message;document.getElementById('draftData').value=JSON.stringify({notes:notes},null,2);publishWidgets();throw error;}
     finally{busy=false;lock(conflict);}})();pending.catch(function(){});return pending;
   }
   Vela.onSave(persist);

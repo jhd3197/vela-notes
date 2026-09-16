@@ -24,6 +24,9 @@
     "required": [
       "storage",
       "actions"
+    ],
+    "optional": [
+      "widgets"
     ]
   },
   "data": {
@@ -54,6 +57,20 @@
           "body"
         ]
       }
+    }
+  ],
+  "widgets": [
+    {
+      "id": "saved",
+      "name": "Notes",
+      "layout": "stat",
+      "size": "m"
+    },
+    {
+      "id": "recent",
+      "name": "Recent notes",
+      "layout": "list",
+      "size": "l"
     }
   ]
 }
